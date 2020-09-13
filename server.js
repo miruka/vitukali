@@ -24,6 +24,9 @@ mongoose.Promise = global.Promise;
 //Log requests and responses on consoleS
 app.use(morgan("dev"));
 
+// Making Folders Publicly Available
+app.use("/uploads/", express.static("uploads"));
+
 //Used to parse url enconded bodies and json
 app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }));
 

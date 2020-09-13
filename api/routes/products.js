@@ -1,13 +1,43 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const multer = require("multer");
 
 const Product = require("../models/Product");
+
+//Detailed way of Storing Files
+const fileFilter = (req, file, cb) => {
+  //Reject File
+  if (file.mimetype === "image/png" || file.mimetype === "image/jpeg") {
+    cb(null, false);
+  } else {
+    cb(null, true);
+  }
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + file.originalname);
+  },
+  fileFilter: fileFilter,
+});
+
+//Intitialise Multer to PArse multi-form FormData
+//Multer will install all incoming files from Form Data to folder named upload
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+});
 
 //Get All Products
 router.get("/", async (req, res, next) => {
   await Product.find()
-    .select("name price _id") //Selelect which product properties shall appear
+    .select("name price _id productImage") //Selelect which product properties shall appear
     .exec()
     .then((foundAllProducts) => {
       //console.log(foundAllProducts);
@@ -17,6 +47,8 @@ router.get("/", async (req, res, next) => {
           return {
             ProductName: product.name,
             Price: product.price,
+            ProductImage: product.productImage,
+            ProductId: product._id,
             request: {
               type: "GET",
               url: `http://localhost:7000/products/${product._id}`,
@@ -41,23 +73,26 @@ router.get("/", async (req, res, next) => {
 });
 
 //Post New  Product
-router.post("/", async (req, res, next) => {
+router.post("/", upload.single("productImage"), (req, res, next) => {
+  // console.log(req.file);
   const product = new Product({
     _id: mongoose.Types.ObjectId(),
     name: req.body.name,
     price: req.body.price,
+    productImage: req.file.path,
   });
-  await product
+  product
     .save()
     .then((createdProduct) => {
       console.log(createdProduct);
       res.status(201).json({
         Message: "Created Product Successfully",
         CreatedProduct: {
-          name: createdProduct.name,
-          price: createdProduct.price,
-          id: createdProduct.id,
-          request: {
+          Name: createdProduct.name,
+          Price: createdProduct.price,
+          ProductImage: createdProduct.productImage,
+          ProductId: createdProduct.id,
+          Request: {
             type: "POST",
             url: `http://localhost:7000/products/${createdProduct._id}`,
           },
@@ -70,11 +105,11 @@ router.post("/", async (req, res, next) => {
     });
 });
 
-//Get a Single Product
+//Get Single Product
 router.get("/:productId", async (req, res, next) => {
   //const id = req.params.productId;
   await Product.findById(req.params.productId)
-    .select("name price _id") //Selelect which product properties shall appear
+    .select("name price _id productImage") //Selelect which product properties shall appear
     .exec()
     .then((foundProductId) => {
       console.log(`The found product is: ${foundProductId}`);
