@@ -6,6 +6,7 @@ const app = express();
 
 const productRoutes = require("./api/routes/products");
 const ordersRoutes = require("./api/routes/orders");
+const userRoutes = require("./api/routes/user");
 
 //Connect to Mongoose
 mongoose.connect(
@@ -15,13 +16,14 @@ mongoose.connect(
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
   },
   () => {
     console.log("Connected To Mongo DB");
   }
 );
 mongoose.Promise = global.Promise;
-//Log requests and responses on consoleS
+//Log requests and responses on console
 app.use(morgan("dev"));
 
 // Making Folders Publicly Available
@@ -54,6 +56,7 @@ app.use((req, res, next) => {
 //Routes which should Handle Requests
 app.use("/products", productRoutes);
 app.use("/orders", ordersRoutes);
+app.use("/user", userRoutes);
 
 // Middleware of Handling Error when URL Endpoint is NOT FOUND
 app.use((req, res, next) => {

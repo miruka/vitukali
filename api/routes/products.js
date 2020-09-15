@@ -14,7 +14,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
   }
 };
-
+//Uploaded File Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads/");
@@ -163,9 +163,7 @@ router.patch("/:productId", (req, res, next) => {
 // Delete a Product
 router.delete("/:productId", async (req, res, next) => {
   //const id = req.params.id;
-  await Product.deleteOne({
-    _id: req.params.productId,
-  })
+  await Product.deleteOne({ _id: req.params.productId })
     .exec()
     .then((deletedProduct) => {
       console.log(deletedProduct);

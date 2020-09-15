@@ -1,5 +1,6 @@
 {
     "env": {
-        "MONGO_ATLAS_PW": "Dypers1481*"
+        "MONGO_ATLAS_PW": "Dypers1481*",
+        "JWT_KEY": "secret"
     }
 }
