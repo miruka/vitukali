@@ -18,8 +18,12 @@ mongoose.connect(
     useUnifiedTopology: true,
     useCreateIndex: true,
   },
-  () => {
-    console.log("Connected To Mongo DB");
+  (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log("Connected To MongoDB Database");
+    }
   }
 );
 mongoose.Promise = global.Promise;
